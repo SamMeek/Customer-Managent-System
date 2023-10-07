@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="CRUDApp">
+
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD App</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container" ng-controller="CustomerController">
+        <h1>Customer List</h1>
+
+        <!-- Add Customer Form -->
+        <form ng-submit="addCustomer()">
+            <div class="form-group">
+                <label for="newName">Name:</label>
+                <input type="text" class="form-control" id="newName" ng-model="newCustomer.name" required>
+            </div>
+            <div class="form-group">
+                <label for="newEmail">Email:</label>
+                <input type="email" class="form-control" id="newEmail" ng-model="newCustomer.email" required>
+            </div>
+            <button type="submit" class="btn btn-success">Add Customer</button>
+        </form>
+
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="customer in customers">
+                    <td>{{ customer.name }}</td>
+                    <td>{{ customer.email }}</td>
+                    <td>
+                        <button class="btn btn-primary" ng-click="editCustomer(customer.id)">Edit</button>
+                        <button class="btn btn-danger" ng-click="deleteCustomer(customer.id)">Delete</button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Edit Customer</h2>
+        <form ng-show="isEditing">
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" class="form-control" id="name" ng-model="editedCustomer.name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" class="form-control" id="email" ng-model="editedCustomer.email" required>
+            </div>
+            <button class="btn btn-success" ng-click="saveCustomer()">Save</button>
+        </form>
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.9/angular.min.js"></script>
+    <script>
+        var app = angular.module('CRUDApp', []);
+
+        app.controller('CustomerController', ['$scope', function ($scope) {
+            $scope.customers = [
+                
+                // Add more customers here
+            ];
+
+            $scope.newCustomer = {};
+            $scope.isEditing = false;
+            $scope.editedCustomer = {};
+
+            $scope.addCustomer = function () {
+                if ($scope.newCustomer.name && $scope.newCustomer.email) {
+                    // Generate a unique ID for the new customer
+                    var newId = $scope.customers.length + 1;
+                    $scope.newCustomer.id = newId;
+
+                    // Add the new customer to the list
+                    $scope.customers.push(angular.copy($scope.newCustomer));
+
+                    // Clear the form
+                    $scope.newCustomer = {};
+                }
+            };
+
+            $scope.editCustomer = function (id) {
+                var customer = $scope.customers.find(function (c) {
+                    return c.id === id;
+                });
+
+                if (customer) {
+                    $scope.isEditing = true;
+                    $scope.editedCustomer = angular.copy(customer);
+                }
+            };
+
+            $scope.saveCustomer = function () {
+                var index = $scope.customers.findIndex(function (c) {
+                    return c.id === $scope.editedCustomer.id;
+                });
+
+                if (index !== -1) {
+                    $scope.customers[index] = angular.copy($scope.editedCustomer);
+                    $scope.isEditing = false;
+                    $scope.editedCustomer = {};
+                }
+            };
+
+            $scope.deleteCustomer = function (id) {
+                var index = $scope.customers.findIndex(function (c) {
+                    return c.id === id;
+                });
+
+                if (index !== -1) {
+                    $scope.customers.splice(index, 1);
+                }
+            };
+        }]);
+    </script>
+</body>
+
+</html>
